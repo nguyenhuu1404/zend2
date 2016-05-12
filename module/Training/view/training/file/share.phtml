@@ -1,0 +1,62 @@
+<div class="row">
+	<div class="col-md-4">
+		<h3> Tập tin <?php echo $this->fileData->label;?> </h3>
+		<p>Vui lòng tên người dùng mà bạn muốn chia sẻ </p>
+		<?php
+			if(count($this->flash)){
+				echo "<div class='alert alert-success'>";
+				echo $this->flash[0];
+				echo "</div>";
+			}
+			$form=$this->form;
+			$form->prepare();
+			$form->setAttribute('action',$this->url('training/file',array('action'=>'share','id'=>$this->fileId)));
+			echo $this->form()->openTag($form);
+			echo "<div class='form-group'>";
+			echo $this->formLabel($form->get('user_id'));
+			echo $this->formElement($form->get('user_id'));
+			echo $this->formElementErrors($form->get('user_id'));			
+			echo "</div>";		
+		
+	
+
+			echo $this->formElement($form->get('submit'));													
+			echo $this->form()->closeTag();
+
+		?>
+
+	</div>
+</div>
+	<hr />
+<div class="row">	
+	<div class="col-md-7">
+		<h3> Thành viên được chia sẻ</h3>
+
+		<table class="table table-striped">
+			<tr>
+				<td>STT</td>
+				<td> Thành viên </td>
+				<td> Thời gian </td>
+				<td> Xóa chia sẻ </td>
+			</tr>
+		<?php
+		if($this->shared != ""){
+			foreach($this->shared as $k=>$share){
+				echo "<tr>";
+				echo "<td>".($k+1)."</td>";
+				echo "<td>$share->username</td>";
+				echo "<td>$share->stamp</td>";				
+				echo "<td><a href='".$this->url('training/file',array('action'=>'removeShare','id'=>$share->id))."' onClick='return confirm_delete();'>Xóa</a></td>";										
+				echo "</tr>";
+			}
+		}else{
+			echo "<tr>";
+			echo "<td colspan='4' align='center'> Tập tin này chưa chia sẻ cho ai</td>";
+			echo "</tr>";
+		}
+		?>	
+		</table>
+
+
+	</div>	
+</div>

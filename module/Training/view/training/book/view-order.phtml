@@ -1,0 +1,56 @@
+<div class='row'>
+	<div class='col-md-7'>
+		<h3> Chi tiết hóa đơn </h3>
+		<table width='50%' border='1'>
+			<tr>
+				<td>
+					<b>Mã hóa đơn: </b> QHOBOOK-<?php echo $this->order->id;?><br />
+					<b>Tình trạng:</b> Đã thanh toán<br />
+					<b>Ngày thanh toán:</b> <?php echo $this->order->stamp;?>
+					<b>Hình thức thanh toán:</b> Paypal
+				</td>
+			</tr>
+		</table>
+		<br />
+		<table width='50%' border='1'>
+			<tr>
+				<td>
+					<h4>Thông tin giao hàng</h4>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<?php echo $this->order->ship_name;?><br />
+					<?php echo $this->order->ship_address;?><br />
+					(Thời gian giao hàng từ 5-->7 ngày làm việc)<br />
+				</td>
+			</tr>
+		</table>
+		<h4> Chi tiết sản phẩm</h4>
+		<table width='80%' border='1'>
+			<tr>
+				<th> Tên sản phẩm</th>
+				<th>Số lượng</th>
+				<th>Giá tiền</th>
+				<th>Thành tiền</th>
+			</tr>
+			<?php
+				foreach($this->books as $id=>$item){
+					echo "<tr>";
+					echo "<td> $item[name]</td>";
+					echo "<td>$item[qty]</td>";
+					echo "<td>$item[price]</td>";
+					echo "<td>".($item['price']*$item['qty'])."</td>";
+					echo "</tr>";
+				}
+
+			?>
+			<tr>
+				<td colspan='3'>Tổng tiền</td>
+				<td><?php echo $this->order->total;?></td>
+			</tr>
+		</table>
+		<hr />
+		<a href='javascript:void(0)' onClick='window.print();'>&raquo; In hóa đơn xác nhận này</a> | <a href='<?php echo $this->url('training/book',array('action'=>'historyPayment'));?>'> Quay về lịch sử mua hàng </a>
+	</div>
+</div>

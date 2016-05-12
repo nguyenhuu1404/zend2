@@ -1,0 +1,111 @@
+<div class="row">
+	<div class="col-md-7">
+		<h3> Các tập tin bạn đã tải lên</h3>
+		<?php
+			if(count($this->flash)){
+				echo "<div class='alert alert-success'>";
+				echo $this->flash[0];
+				echo "</div>";
+			}
+		?>
+		<table class="table table-striped">
+			<tr>
+				<td>STT</td>
+				<td> Tên tập tin </td>
+				<td> Tải về </td>
+				<td> Chia sẻ </td>
+				<td> Sửa </td>
+				<td> Xóa </td>
+			</tr>
+		<?php
+		if($this->files->count() != 0){
+			foreach($this->files as $k=>$file){
+				echo "<tr>";
+				echo "<td>".($k+1)."</td>";
+				echo "<td>$file->label</td>";
+				echo "<td><a href='".$this->url('training/file',array('action'=>'download','id'=>$file->id))."'>Tải về</a></td>";
+				echo "<td><a href='".$this->url('training/file',array('action'=>'share','id'=>$file->id))."'> Chia sẻ</a></td>";	
+				echo "<td><a href='".$this->url('training/file',array('action'=>'edit','id'=>$file->id))."'>Sửa</a></td>";	
+				echo "<td><a href='".$this->url('training/file',array('action'=>'del','id'=>$file->id))."' onClick='return confirm_delete();'>Xóa</a></td>";										
+				echo "</tr>";
+			}
+		}else{
+			echo "<tr>";
+			echo "<td colspan='6' align='center'> Chưa có tập tin nào tải lên</td>";
+			echo "</tr>";
+		}
+		?>	
+		</table>
+		<hr />
+		<a href="<?php echo $this->url('training/file',array('action'=>'add'));?>">&raquo; Thêm tập tin mới</a>
+
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-7">
+		<h3> Tập tin bạn được chia sẻ </h3>
+
+		<table class="table table-striped">
+			<tr>
+				<td>STT</td>
+				<td> Tên tập tin </td>
+				<td> Thời gian chia sẻ </td>				
+				<td> Tải về </td>
+				<td> Tác giả </td>
+			</tr>
+		<?php
+		if($this->allshared->count() != 0){
+			foreach($this->allshared as $k=>$file){
+				echo "<tr>";
+				echo "<td>".($k+1)."</td>";
+				echo "<td>$file->label</td>";
+				echo "<td>$file->stamp</td>";				
+				echo "<td><a href='".$this->url('training/file',array('action'=>'download','id'=>$file->id))."'>Tải về</a></td>";
+				echo "<td>$file->username</td>";											
+				echo "</tr>";
+			}
+		}else{
+			echo "<tr>";
+			echo "<td colspan='5' align='center'> Bạn chưa được ai chia sẻ </td>";
+			echo "</tr>";
+		}
+		?>	
+		</table>
+
+
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-7">
+		<h3> 10 Tập tin mới nhất được tải lên </h3>
+
+		<table class="table table-striped">
+			<tr>
+				<td>STT</td>
+				<td> Tên tập tin </td>
+				<td> Yêu cầu chia sẻ </td>				
+				<td> Tác giả </td>
+			</tr>
+		<?php
+		if(!empty($this->lastFile)){
+			foreach($this->lastFile as $k=>$file){
+				echo "<tr>";
+				echo "<td>".($k+1)."</td>";
+				echo "<td>$file->label</td>";			
+				echo "<td><a href='".$this->url('training/file',array('action'=>'requestShare','id'=>$file->id))."'> Gởi yêu cầu </a></td>";
+				echo "<td>$file->username</td>";											
+				echo "</tr>";
+			}
+		}else{
+			echo "<tr>";
+			echo "<td colspan='4' align='center'> Không có tập tin nào </td>";
+			echo "</tr>";
+		}
+		?>	
+		</table>
+
+
+	</div>
+</div>

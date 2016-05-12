@@ -1,0 +1,22 @@
+<div class="row">
+	<div class="col-md-12">
+		<h2>Book Shop</h2>
+		<p><a href="<?php echo $this->url('training/book',array('action'=>'cart')); ?>">Giỏ hàng của bạn</a> / <b><?php echo $this->count;?></b> Sản phẩm trong giỏ hàng / <a href='<?php echo $this->url('training/book',array('action'=>'historyPayment'));?>'> Lịch sử mua hàng</a></p>
+		<?php
+			if(count($flash)){
+				echo "<div class='alert alert-success'>";
+				echo $flash[0];
+				echo "</div>";
+			}
+			$base=$this->basePath();
+			foreach($this->books as $book){
+				echo "<div class='col-md-3'>";
+				echo "<h4>$book->name</h4>";
+				echo "<img src='$base/../$book->img' width='200' height='200' /><br />";
+				echo "<p><b>Price: $book->price</b><br />";
+				echo "<a href='".$this->url('training/book',array('action'=>'addItem','id'=>$book->id))."' class='btn btn-primary'>Thêm vào giỏ hàng</a></p>";
+				echo "</div>";
+			}
+		?>
+	</div>
+</div>
