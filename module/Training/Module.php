@@ -50,18 +50,33 @@ class Module implements AutoloaderProviderInterface
         $shared=$eventManager->getSharedManager();
         $shared->attach(__NAMESPACE__,'dispatch',function($e){
             $controller=$e->getTarget();
-            if($controller instanceof Controller\VerifyController){
+			$route = $e->getRouteMatch();
+			$actionName = $route->getParam('action');
+			
+            if($controller instanceof Controller\VerifyController && $actionName != 'logout'){//kien tra xem controller co ho hang voi verifyController hay khong
                 $controller->layout('layout/auth');
             }else{
-                $auth=$e->getApplication()->getServiceManager()->get('AuthService');
+				$sm = $e->getApplication()->getServiceManager();
+				
+                $auth = $sm->get('AuthService');
                 $viewModel=$e->getApplication()->getMvcEvent()->getViewModel();
                 $userLogin=$auth->getStorage()->read();
                 $viewModel->username_layout=$userLogin['username'];
-                if(!$auth->hasIdentity()){
+                
+				$sm->get('ControllerPluginManager')->get('QHO\Controller\Plugin\AclPlugin')->RoleAccess($e);
+				
+				$response = $e->getResponse();
+				//chu y neu action khong co theo tac return ve view thi no se khong set duoc status code 302
+				if($response->getStatusCode() == 302) {
+					$e->stopPropagation();
+					$controller->plugin('redirect')->toRoute('training/verify', array('action'=>'denied'));
+				}
+				
+				/*if(!$auth->hasIdentity()){
                     $controller->plugin('redirect')->toRoute('training/verify',array('action'=>'login'));
-                }
+                }*/
             }
-        });
+        }, 99); //99 de tang do uu tien de no xu li truoc o trong action voi moi action co return ve view hay khong
 
     }
     public function getFormElementConfig(){
@@ -84,7 +99,11 @@ class Module implements AutoloaderProviderInterface
                         'ShareForm' => function($sm){
                             $form= new \Training\Form\ShareForm('Share_Form');
                             return $form;
-                        },                        
+                        },
+						'AccessForm' => function($sm){
+							$form = new \Training\Form\AccessForm('Access_Form');
+							return $form;
+						},		
             )
         );
     }

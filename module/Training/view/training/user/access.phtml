@@ -1,0 +1,22 @@
+
+<div class='row'>
+	<div class='col-md-7'>
+		<h3> Quản lý quyền truy cập </h3>
+		<p> Vui lòng đánh dấu chọn các quyền bên dưới cho thành viên</p>
+		<?php
+			$form=$this->form;
+			$form->prepare();
+			$form->setAttribute('action',$this->url('training/member',array('action'=>'access','id'=>$this->userId)));
+			echo $this->form()->openTag($form);
+			echo "<div class='form-group'>";
+			echo $this->formElement($form->get('usercontroller'));
+			echo $this->formLabel($form->get('user'))."<br />";
+			echo $this->formElement($form->get('user'));
+			echo "</div>";
+			
+			echo $this->formElement($form->get('submit'));
+
+			echo $this->form()->closeTag()
+		?>
+	</div>
+</div>

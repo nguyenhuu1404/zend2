@@ -6,7 +6,8 @@ return array(
             'Training\Controller\Verify' => 'Training\Controller\VerifyController',
             'Training\Controller\Chat'  => 'Training\Controller\ChatController',
             'Training\Controller\File'  => 'Training\Controller\FileController',
-            'Training\Controller\Book'  => 'Training\Controller\BookController'
+            'Training\Controller\Book'  => 'Training\Controller\BookController',
+			'Training\Controller\Acl'  => 'Training\Controller\AclController'
         ),
     ),
 

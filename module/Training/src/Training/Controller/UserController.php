@@ -122,4 +122,17 @@ class UserController extends AbstractActionController{
 		$this->flashMessenger()->addMessage("Xóa thành viên thành công");
 		return $this->redirect()->toRoute('training/member');
 	}
+	public function accessAction() {
+		$userId = $this->params()->fromRoute('id');
+		$sm = $this->getServiceLocator();
+		$form = $sm->get('FormElementManager')->get('AccessForm');
+		
+		$request=$this->getRequest();
+		if($request->isPost()){
+			$data=$request->getPost()->toArray();
+			print_r($data);die();
+		}
+		
+		return new ViewModel(array('form'=>$form, 'userId'=>$userId));
+	}
 }
