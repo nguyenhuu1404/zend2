@@ -8,6 +8,8 @@ use Zend\Mvc\MvcEvent;
 
 class AclPlugin extends AbstractPlugin{
 	protected $role;
+	protected $access;
+	
 	public function getAuthService() {
 		$sm = $this->getController()->getServiceLocator();
 		$authService = $sm->get('AuthService');
@@ -15,6 +17,7 @@ class AclPlugin extends AbstractPlugin{
 			$user = $authService->getStorage()->read();
 			if($user['level'] == 1) {
 				$this->role = 'member';
+				$this->access = $user['access'];
 			}else {
 				$this->role = 'admin';
 			}
@@ -23,7 +26,10 @@ class AclPlugin extends AbstractPlugin{
 		}
 		return $this->role;
 	}
-	public function roleAccess($e) {
+	public function getAccess() {
+		return $this->access;
+	}
+	public function configAcl() {
 		$acl = new Acl;
 		$acl->deny();//ban dau chan tat ca cac quyen
 		//khoi tao cac nhom quyen
@@ -42,7 +48,7 @@ class AclPlugin extends AbstractPlugin{
 		//gan nhom quyen cho tai nguyen
 		$acl->allow('guest', 'training:verify', array('index', 'login', 'forgot', 'active', 'denied'));
 		
-		//$acl->allow('member', 'training:verify', array('logout'));
+		$acl->allow('member', 'training:verify', array('logout'));
 		//$acl->allow('member', 'training:book');
 		//$acl->allow('member', 'training:file');
 		//$acl->allow('member', 'training:chat');
@@ -50,24 +56,32 @@ class AclPlugin extends AbstractPlugin{
 		//quyen cua nguoi dung
 		$role = $this->getAuthService();
 		
-		$rule = array(
-			'training' => array(
-				'user' => array('index', 'edit')
-			) 
-		);
+		if($this->access != '') {
+			$serialize=new \Zend\Serializer\Adapter\PhpSerialize();	
+			$rule = $serialize->unserialize($this->access);
+			/*$rule = array(
+				'training' => array(
+					'user' => array('index', 'edit')
+				) 
+			);*/
 
-		if($role != "admin" && !empty($rule['training'])) {
+			if($role != "admin" && !empty($rule['training'])) {
 
-			$module = 'training';
-			foreach($rule['training'] as $controller => $action) {
-				$acl->allow('member', "$module:$controller", $action);
+				$module = 'training';
+				foreach($rule['training'] as $controller => $action) {
+					$acl->allow('member', "$module:$controller", $action);
+				}
+
 			}
-
 		}
-		
 		
 		$acl->allow('admin');
 		
+		return $acl;
+	}
+	public function roleAccess($e) {
+		$role = $this->getAuthService();
+		$acl = $this->configAcl();
 		//lay ten controller, module, action
 		
 		$route = $e->getRouteMatch();

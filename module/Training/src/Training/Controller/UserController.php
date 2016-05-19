@@ -125,12 +125,38 @@ class UserController extends AbstractActionController{
 	public function accessAction() {
 		$userId = $this->params()->fromRoute('id');
 		$sm = $this->getServiceLocator();
+		$serialize=new \Zend\Serializer\Adapter\PhpSerialize();	
+		
+		$userTable=$sm->get('UserTable');
+		$userData=$userTable->getUserById($userId);
+		
 		$form = $sm->get('FormElementManager')->get('AccessForm');
+		
+		if($userData->access != ""){
+			$access=$serialize->unserialize($userData->access);
+			foreach($access['training'] as $key=>$val){
+				$form->get($key.'controller')->setValue($key);
+				$form->get($key)->setValue($val);
+			}
+		}
 		
 		$request=$this->getRequest();
 		if($request->isPost()){
 			$data=$request->getPost()->toArray();
-			print_r($data);die();
+			$access = array();
+			foreach($data as $key => $val){
+				if(!is_array($val)) {
+					unset($data[$key]);
+				}
+			}
+			$access['training'] = $data;
+			
+			
+			$straccess=$serialize->serialize($access);
+			//them quyen cho thanh vien
+			$userTable->saveAccess($straccess, $userId);
+			$this->flashMessenger()->addMessage("Phân quyền cho thành viên '".$userData->username."' thành công");
+			return $this->redirect()->toRoute('training/member');
 		}
 		
 		return new ViewModel(array('form'=>$form, 'userId'=>$userId));

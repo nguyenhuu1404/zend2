@@ -61,9 +61,11 @@ class Module implements AutoloaderProviderInterface
                 $auth = $sm->get('AuthService');
                 $viewModel=$e->getApplication()->getMvcEvent()->getViewModel();
                 $userLogin=$auth->getStorage()->read();
-                $viewModel->username_layout=$userLogin['username'];
-                
-				$sm->get('ControllerPluginManager')->get('QHO\Controller\Plugin\AclPlugin')->RoleAccess($e);
+                //phan quyen
+				$plugin = $sm->get('ControllerPluginManager')->get('QHO\Controller\Plugin\AclPlugin');
+				$plugin->RoleAccess($e);
+				$viewModel->acl = $plugin->configAcl();
+				$viewModel->role = $plugin->getAuthService();
 				
 				$response = $e->getResponse();
 				//chu y neu action khong co theo tac return ve view thi no se khong set duoc status code 302
@@ -182,7 +184,9 @@ class Module implements AutoloaderProviderInterface
                             $result=new \Zend\Db\ResultSet\ResultSet;
                             $result->setArrayObjectPrototype(new \Training\Model\Order);
                             return new \Zend\Db\TableGateway\TableGateway('orders',$db,null,$result);
-                        },                                                                 
+                        },  
+						'navigation' => 'Zend\Navigation\Service\DefaultNavigationFactory',
+						'member_navigation' => 'QHO\Navigation\MemberNavigationFactory'	
                     )
             );
     }

@@ -79,4 +79,8 @@ class UserTable{
 		$data['password'] = $pass;
 		$this->tableGateway->update($data,array('username'=>$user));
 	}
+	public function saveAccess($access, $userId) {
+		$data['access'] = $access;
+		$this->tableGateway->update($data,array('id'=>$userId));
+	}
 }

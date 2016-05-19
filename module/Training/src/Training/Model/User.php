@@ -12,6 +12,7 @@ class User implements InputFilterAwareInterface{
 	public $email;
 	public $level;
 	public $name;
+	public $access;
 	protected $inputFilter;
 	public function exchangeArray($data){
 		if(isset($data['id'])){
@@ -28,6 +29,9 @@ class User implements InputFilterAwareInterface{
 		}
 		if(isset($data['name'])){
 			$this->name=$data['name'];
+		}
+		if(isset($data['access'])){
+			$this->access=$data['access'];
 		}
 		if(isset($data['password'])){
 			$this->setPassword($data['password']);

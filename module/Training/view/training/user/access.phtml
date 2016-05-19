@@ -1,10 +1,47 @@
-
+<?php 
+$this->headScript()->appendScript('
+	$(document).ready(function(){
+		
+		isCheckedController("user");
+		check_enable("user", "useraction");
+		
+		isCheckedController("file");	
+		check_enable("file", "fileaction");
+		
+		isCheckedController("book");
+		check_enable("book", "bookaction");
+		
+		isCheckedController("chat");
+		check_enable("chat", "chataction");
+	});
+	
+	function check_enable(controller, namecheckbox) {
+		$("#"+controller).click(function(e){
+			if(this.checked){
+				$("input."+namecheckbox).removeAttr("disabled");
+			}else{
+				$("input."+namecheckbox).attr("disabled", true);
+				$("input."+namecheckbox).attr("checked", false);
+			}
+		});
+	}
+	//kiem tra xem controller da checked chua, neu chua check thi disabled action
+	function isCheckedController(controller){
+		check=$("input#"+controller).attr("checked");
+		if(check != "checked"){
+			$("input."+controller+"action").attr("disabled",true);
+		}
+	}
+	
+');
+?>
 <div class='row'>
 	<div class='col-md-7'>
 		<h3> Quản lý quyền truy cập </h3>
 		<p> Vui lòng đánh dấu chọn các quyền bên dưới cho thành viên</p>
 		<?php
 			$form=$this->form;
+			
 			$form->prepare();
 			$form->setAttribute('action',$this->url('training/member',array('action'=>'access','id'=>$this->userId)));
 			echo $this->form()->openTag($form);
@@ -13,7 +50,21 @@
 			echo $this->formLabel($form->get('user'))."<br />";
 			echo $this->formElement($form->get('user'));
 			echo "</div>";
-			
+			echo "<div class='form-group'>";
+			echo $this->formElement($form->get('filecontroller'));
+			echo $this->formLabel($form->get('file'))."<br />";
+			echo $this->formElement($form->get('file'));
+			echo "</div>";
+			echo "<div class='form-group'>";
+			echo $this->formElement($form->get('chatcontroller'));
+			echo $this->formLabel($form->get('chat'))."<br />";
+			echo $this->formElement($form->get('chat'));
+			echo "</div>";
+			echo "<div class='form-group'>";
+			echo $this->formElement($form->get('bookcontroller'));
+			echo $this->formLabel($form->get('book'))."<br />";
+			echo $this->formElement($form->get('book'));
+			echo "</div>";						
 			echo $this->formElement($form->get('submit'));
 
 			echo $this->form()->closeTag()

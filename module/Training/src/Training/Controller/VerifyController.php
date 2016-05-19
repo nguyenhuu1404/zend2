@@ -85,7 +85,7 @@ class VerifyController extends AbstractActionController{
 							'level'    => $userData->level,
 							'id'       => $userData->id
 						);*/
-					$store=(array) $this->getAuthService()->getAdapter()->getResultRowObject(array('id','username','level'));
+					$store=(array) $this->getAuthService()->getAdapter()->getResultRowObject(array('id','username','level', 'access'));
 					
 					$this->getAuthService()->getStorage()->write($store);
 					return $this->redirect()->toRoute('training/member');

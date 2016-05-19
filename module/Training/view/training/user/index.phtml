@@ -16,6 +16,7 @@
 				<td>STT</td>
 				<td>Username</td>
 				<td>Level</td>
+				<td>Access</td>
 				<td>Edit</td>
 				<td>Del</td>
 			</tr>
@@ -29,6 +30,7 @@
 					}else{
 						echo "<td><font color='red'>Administrator</font></td>";
 					}
+					echo "<td><a href='".$this->url('training/member',array('action'=>'access','id'=>$user->id))."'>Access</a></td>";
 					echo "<td><a href='".$this->url('training/member',array('action'=>'edit','id'=>$user->id))."'>Edit</a></td>";
 					echo "<td><a href='".$this->url('training/member',array('action'=>'del','id'=>$user->id))."' onClick='return confirm_delete();'>Del</a></td>";					
 					echo "</tr>";
