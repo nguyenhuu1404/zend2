@@ -43,10 +43,13 @@ return array(
 					'post' => array(
                         'type'    => 'Segment',
                         'options' => array(
-                            'route'    => '/post[/:action[/:id]]',
+                            'route'    => '/post[/:action[/:id[/:title[.html]]][/key/:tag][/page/:page]]',
                             'constraints' => array(
                                 'action' => '[a-zA-Z][a-zA-Z0-9_-]+',
                                 'id'     => '[0-9]+',
+								'tag'	=> '[a-zA-Z0-9_+-]+',
+								'title' => '[^page][a-zA-Z0-9_-]+',//loai bo page khoi title
+								'page' => '[0-9]+'
                             ),
                             'defaults' => array(
 								// Change this value to reflect the namespace in which

@@ -1,0 +1,53 @@
+<div class="row">
+	<div class="col-md-7">
+		<h3> Chuyên mục: "<?php echo $this->cate->getName(); ?>"</h3>
+		<?php
+		foreach($this->paging as $post){
+			$urlTitle=$this->Unicode()->make($post->getTitle());
+			echo "<h4><a href='".$this->url('blog/post',array('action'=>'read','id'=>$post->getId(),'title'=>$urlTitle))."'>".$post->getTitle()."</a></h4>";
+			$cmt=$post->getComments();
+			if(count($cmt)){
+				$count=count($cmt);
+			}else{
+				$count=0;
+			}
+			echo "<p><b>Xuất bản: </b>".$post->getDateCreated()." - <b>$count</b> Ý kiến</p>";
+			echo $post->getInfo();
+			echo "<p align='right'><a href='".$this->url('blog/post',array('action'=>'read','id'=>$post->getId(),'title'=>$urlTitle))."'> Đọc tiếp</a></p>";
+			echo "<p> Từ khóa: ";
+			$tags=$post->getTags();
+			if(count($tags)){
+				$i=0;
+				foreach($tags as $tag){
+					$i++;
+					$tagName=$tag->getName();
+					$tagUrl=str_replace(" ","+",$tagName);
+					$link=$this->url('blog/post',array('action'=>'tag','tag'=>$tagUrl));
+					if($i < count($tags)){
+						echo "<a href='$link'>$tagName</a>, ";
+					}else{
+						echo "<a href='$link'>$tagName</a> ";
+					}
+					
+				}
+			}
+		}
+		?>
+		<?php
+		echo $this->paginationControl(
+			$this->paging,
+			'sliding',
+			array('partial/pagination.phtml','blog'),
+			array(
+					'route' => 'blog/post',
+					'params' => array('action'=>'cate','id'=>$this->cate->getId())
+				)
+			);
+		?>			
+	</div>
+	<div class="col-md-3">
+		<?php
+		echo $this->Menu()->callMenu();
+		?>
+	</div>
+</div>

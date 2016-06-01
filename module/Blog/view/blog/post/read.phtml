@@ -1,0 +1,108 @@
+<?php
+//e.preventDefault khong chuyen trang khi click
+	$this->headScript()->appendScript('
+		$(document).ready(function(){
+			$cmt=$("#commentForm");
+			$cmt.hide();
+			$("button#showCmtForm").on("click",function(e){
+				e.preventDefault();
+				if($cmt.is(":hidden")){
+					$cmt.fadeIn("fast");
+				}else{
+					$cmt.fadeOut("fast");
+				}
+			});
+		})
+','text/javascript');
+//them css truc tiep
+echo $this->headStyle()->appendStyle('
+		.cmt{
+			border:1px solid #99CCFF;
+			padding:10px;
+			background:#CCE5FF;
+			margin:5px;
+		}
+	');
+?>
+<div class="row">
+	<div class="col-md-7">
+		<h3> <?php echo $this->post->getTitle();?> </h3>
+		<?php
+			echo "<p>";
+			$tags=$post->getTags();
+			if(count($tags)){
+				echo "Từ khóa: ";
+				$i=0;
+				foreach($tags as $tag){
+					$i++;
+					$tagName=$tag->getName();
+					$tagUrl=str_replace(" ","+",$tagName);
+					$link=$this->url('blog/post',array('action'=>'tag','tag'=>$tagUrl));
+					if($i < count($tags)){
+						echo "<a href='$link'>$tagName</a>, ";
+					}else{
+						echo "<a href='$link'>$tagName</a> ";
+					}
+					
+				}
+				echo " - ";
+			}
+			echo "Thời gian: ".$this->post->getDateCreated();
+			echo "</p>";
+			echo "<p>".$this->post->getContent()."</p>";
+		
+		?>
+		<button id="showCmtForm" class="btn btn-primary"> Gởi phản hồi</button>
+		<hr />
+		<?php
+			if(count($this->flash)){
+				$mess=$this->flash;
+				echo "<div class='alert alert-success'>";
+				echo $mess[0];
+				echo "</div>";
+			}
+		?>
+		<div id="commentForm">
+			<?php
+				$form=$this->form;
+				$form->prepare();
+				$form->setAttribute('action',$this->url('blog/post',array('action'=>'read','id'=>$this->postId)));
+				echo  $this->form()->openTag($form);
+				echo "<div class='form-group'>";
+				echo $this->formLabel($form->get('email'));
+				echo $this->formElement($form->get('email'));
+				echo $this->formElementErrors($form->get('email'));
+				echo "</div>";
+				echo "<div class='form-group'>";
+				echo $this->formLabel($form->get('content'));
+				echo $this->formElement($form->get('content'));
+				echo $this->formElementErrors($form->get('content'));
+				echo "</div>";	
+				echo $this->formElement($form->get('submit'));		
+				echo $this->form()->closeTag();
+			?>
+		</div>
+		<div class="comments">
+			<?php
+				//getComments ham trung gian khai bao trong entity lay tat ca cac comment cua post
+				$comments = $this->post->getComments();
+				if(count($comments)){
+					foreach($comments as $cmt){
+						echo "<p class='cmt'>";
+						echo "<b>".$cmt->getEmail()."</b> (".$cmt->getDateCreated().")<br />";
+						echo $cmt->getContent();
+						echo "</p>";
+					}
+				}else{
+					echo "<p align='center' class='cmt'> Chưa có ý kiến nào</p>";
+				}
+			?>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<?php
+			//get view helper (src/blog/view/helper/menu)
+			echo $this->Menu()->callMenu();
+		?>
+	</div>
+</div>

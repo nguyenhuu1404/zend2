@@ -43,14 +43,43 @@ class Module implements AutoloaderProviderInterface
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
     }
+	
+	//khai bao form
 	public function getFormElementConfig(){
         return array(
             'factories' => array(
                 'PostForm' => function($sm){
                     $form=new \Blog\Form\PostForm('Post_Form');
                     return $form;
+                },
+				'CommentForm' => function($sm){
+                    $form=new \Blog\Form\CommentForm('CommentForm');
+                    return $form;
                 }
             )
+        );
+    }
+	//khai bao view hepper
+	public function getViewHelperConfig() {
+		return array(
+			'factories' => array(
+				'Menu' => function($sm){
+					$helper = new View\Helper\Menu($sm);
+					return $helper;
+				},
+				'Unicode' => function($sm){
+					$helper = new View\Helper\Unicode($sm);
+					return $helper;
+				}
+			)
+		);
+	}
+	//khai bao service
+	public function getServiceConfig(){
+        return array(
+            'invokables' => array(
+                'PostManager' => 'Blog\Service\PostManager',
+            ),
         );
     }
 }

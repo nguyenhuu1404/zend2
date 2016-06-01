@@ -4,6 +4,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 /**
 * @ORM\Entity
+* @ORM\Entity(repositoryClass="\Blog\Repository\PostRepository")
 * @ORM\Table(name="posts")
 */
 class Post{
@@ -48,10 +49,16 @@ class Post{
 	* )
 	*/
 	protected $tags;
+	/**
+	*@ORM\OneToMany(targetEntity="\Blog\Entity\Comment", mappedBy="post")
+	*@ORM\JoinColumn(name="id", referencedColumnName="post_id")
+	*/
+	protected $comments;
 
 	public function __construct(){
 		$this->cate=new ArrayCollection();
 		$this->tags= new ArrayCollection();
+		$this->comments = new ArrayCollection();
 	}
 
 	/**	
@@ -156,5 +163,8 @@ class Post{
 	}
 	public function removeTag($tag){
 		$this->tags->removeElement($tag);
+	}
+	public function getComments(){
+		return $this->comments;
 	}
 }

@@ -2,6 +2,10 @@
 namespace Blog\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+//phan trang voi doc trine
+use DoctrineORMModule\Paginator\Adapter\DoctrinePaginator as DoctrineAdapter;
+use Doctrine\ORM\Tools\Pagination\Paginator as ORMPaginator;
+use Zend\Paginator\Paginator;
 class PostController extends AbstractActionController{
 	public function __construct(){
 		session_start();
@@ -13,8 +17,124 @@ class PostController extends AbstractActionController{
 		return $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
 	}
 	public function indexAction(){
-		echo "<h1>Post Controller</h1>";
-		return false;
+		//goi doctrine entitymanager
+		$em = $this->getEm();
+		//phan trang thuong
+		//lay page hien tai
+		$page = (int) $this->params()->fromRoute('page',1);
+		$pagingConfig=array(
+				'ItemCountPerPage' => 1,
+				'CurrentPageNumber' => $page
+			);
+		$repository=$em->getRepository('\Blog\Entity\Post');	
+		//ham get all viet trong PostRepository
+		$posts = $repository->getAll($pagingConfig);
+		//xu li phan trang
+		//phan trang cho bang nao
+		$ormPaging = new ORMPaginator($repository->createQueryBuilder('posts'));
+		$adapter = new DoctrineAdapter($ormPaging);
+		
+		$paging = new Paginator($adapter);
+		//so bang ghi tren 1 trang
+		$paging->setDefaultItemCountPerPage($pagingConfig['ItemCountPerPage']);
+		//khai bao trang hien hanh
+		$paging->setCurrentPageNumber($pagingConfig['CurrentPageNumber']);
+		/*
+		$repository=$em->getRepository('\Blog\Entity\Post');
+		$posts = $repository->findBy(array(), array('id'=>'desc'));
+		//xu li phan trang
+		//phan trang cho bang nao
+		$ormPaging = new ORMPaginator($repository->createQueryBuilder('posts'));
+		$adapter = new DoctrineAdapter($ormPaging);
+		
+		$paging = new Paginator($adapter);
+		//so bang ghi tren 1 trang
+		$paging->setDefaultItemCountPerPage(1);
+		//khai bao trang hien hanh
+		$paging->setCurrentPageNumber($page);
+		*/
+		
+		return new ViewModel(array('posts'=>$posts, 'paging'=>$paging));
+	}
+	public function readAction() {
+		$id = $this->params()->fromRoute('id');
+		$em = $this->getEm();
+		$post = $em->getRepository('\Blog\Entity\Post')->findOneBy(array('id'=>$id));
+		$sm=$this->getServiceLocator();
+		$form=$sm->get('FormElementManager')->get('CommentForm');
+		
+		$request = $this->getRequest();
+		if($request->isPost()) {
+			$data = $request->getPost();
+			$form->setData($data);
+			if($form->isValid()) {
+				$dataInput = $form->getData();
+				/*
+				$cmt = new \Blog\Entity\Comment;
+				$cmt->setEmail($dataInput['email']);
+				$cmt->setContent($dataInput['content']);
+				$current = date('Y-m-d H:i:s');
+				$cmt->setDateCreated($current);
+				$cmt->setPost($post);
+				$em->persist($cmt);
+				$em->flush();
+				*/
+				//them comment vao bai viet
+				$sm->get('PostManager')->addComment($post,$dataInput);
+				//goi view helper tu controller
+				//xu li dung dan than thien
+				$urlTitle=$sm->get('ViewHelperManager')->get('Unicode')->make($post->getTitle());
+				$this->flashMessenger()->addMessage(" Ý kiến của bạn đã được gửi ");
+				return $this->redirect()->toRoute('blog/post', array('action'=>'read', 'id'=>$id, 'title'=>$urlTitle));
+				
+			}
+		}
+		$flash=$this->flashMessenger()->getMessages();
+		return new ViewModel(array('post'=>$post, 'form'=>$form, 'postId'=>$id, 'flash'=>$flash));
+	}
+	public function tagAction(){
+		$tag=$this->params()->fromRoute('tag');
+		$tagEncode=str_replace("+"," ",$tag);
+		$em=$this->getEm();
+		
+		$page=(int) $this->params()->fromRoute('page',1); 
+		$pagingConfig=array(
+				'ItemCountPerPage' => 1,
+				'CurrentPageNumber' => $page
+			);
+		$repository=$em->getRepository('\Blog\Entity\Post');
+		$posts=$repository->getPostByTag($tagEncode,$pagingConfig);	
+		
+		$ormPaging=new ORMPaginator($posts);
+		$adapter=new DoctrineAdapter($ormPaging);
+		
+		$paging=new Paginator($adapter);
+		$paging->setDefaultItemCountPerPage($pagingConfig['ItemCountPerPage']);
+		$paging->setCurrentPageNumber($pagingConfig['CurrentPageNumber']);
+		
+		return new ViewModel(array('paging'=>$paging,'tagEncode'=>$tagEncode,'tag'=>$tag));			
+	}
+	public function cateAction(){
+		$id=$this->params()->fromRoute('id');
+		$em=$this->getEm();
+		$page=(int) $this->params()->fromRoute('page',1); 
+		$pagingConfig=array(
+				'ItemCountPerPage' => 1,
+				'CurrentPageNumber' => $page
+			);
+			
+		$repository=$em->getRepository('\Blog\Entity\Post');
+		$cate=$em->getRepository('\Blog\Entity\Categorie')->findOneBy(array('id'=>$id));
+		$posts=$repository->getPostByCateId($id,$pagingConfig);	
+		
+		$ormPaging=new ORMPaginator($posts);
+		$adapter=new DoctrineAdapter($ormPaging);
+		
+		$paging=new Paginator($adapter);
+		$paging->setDefaultItemCountPerPage($pagingConfig['ItemCountPerPage']);
+		$paging->setCurrentPageNumber($pagingConfig['CurrentPageNumber']);
+		
+		return new ViewModel(array('paging'=>$paging,'cate'=>$cate));			
 	}
 	public function addAction(){
 		$sm = $this->getServiceLocator();
@@ -42,6 +162,7 @@ class PostController extends AbstractActionController{
 			if($form->isValid()){
 				//lay du lieu tu form da duoc validate
 				$data = $form->getData();
+				/*
 				//du lieu de set vao truong cate trong bang post, cate la khoa ngoai lien ket bang categories
 				$cateId = $em->getRepository('\Blog\Entity\Categorie')->findOneBy(array('id'=>$data['cate_id']));
 				//goi entity post
@@ -79,6 +200,8 @@ class PostController extends AbstractActionController{
 				}
 				//save data
 				$em->flush();
+				*/
+				$sm->get('PostManager')->addPost($data);
 				$this->flashMessenger()->addMessage(" Thêm bài viết thành công ");
 				return $this->redirect()->toRoute('blog/post',array('action'=>'list'));				
 			}
@@ -114,6 +237,7 @@ class PostController extends AbstractActionController{
 			if($form->isValid()){
 				//du lieu tu form sau khi validate
 				$dataInput=$form->getData();
+				/*
 				//bien luu cateId
 				$cateId=$em->getRepository('\Blog\Entity\Categorie')->findOneBy(array('id'=>$dataInput['cate_id']));
 				//set cac gia tri cho bang post
@@ -144,11 +268,14 @@ class PostController extends AbstractActionController{
 					$post->addTag($tag);
 				}	
 				$em->flush();
+				*/
+				$sm->get('PostManager')->editPost($post,$dataInput);
 				//add flash messenger
 				$this->flashMessenger()->addMessage(" Sửa bài viết thành công ");
 				return $this->redirect()->toRoute('blog/post',array('action'=>'list'));												
 			}
 		}
+		/*
 		//luu cac tag
 		$tagStr="";
 		//goi cac tac cho bai viet
@@ -162,14 +289,14 @@ class PostController extends AbstractActionController{
 					$tagStr.=", ";
 				}
 			}			
-		}
+		}*/
 		//set cac gia tri cho form edit	
 		$data=array(
 				'title' => $post->getTitle(),
 				'info'  => $post->getInfo(),
 				'content' => $post->getContent(),
 				'status' => $post->getStatus(),
-				'tags'   => $tagStr
+				'tags'   => $sm->get('PostManager')->convertTagToString($post),
 			);
 		$form->setData($data);
 
@@ -185,8 +312,14 @@ class PostController extends AbstractActionController{
 		foreach($tags as $tag){
 			$post->removeTag($tag);
 		}
+		//xoa het comment di
+		$cmts=$post->getComments();
+		foreach($cmts as $cmt){
+			$em->remove($cmt);
+		}
 		//xoa bai viet nay di
 		$em->remove($post);
+		
 		$em->flush();
 		$this->flashMessenger()->addMessage(" Xóa bài viết thành công ");
 		return $this->redirect()->toRoute('blog/post',array('action'=>'list'));				
