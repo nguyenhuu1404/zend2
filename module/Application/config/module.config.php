@@ -83,12 +83,12 @@ return array(
         'not_found_template'       => 'error/404',
         'exception_template'       => 'error/index',
         'template_map' => array(
-            'layout/application'           => PATH_APP . '/layouts/application.phtml',
+            'layout/application'           => PATH_LAYOUT . '/layouts/application.phtml',
 			//load cac layout cho cac module khac
 			//module training tam thoi lay layout mac dinh de do phai su
-			'layout/layout'           => PATH_APP .'/layouts/training.phtml',
+			'layout/layout'           => PATH_LAYOUT .'/layouts/training.phtml',
 			//goi layout cho module blog
-			'layout/blog'           => PATH_APP . '/layouts/blog.phtml',
+			'layout/blog'           => PATH_LAYOUT . '/layouts/blog.phtml',
 			
             'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
@@ -97,6 +97,7 @@ return array(
         'template_path_stack' => array(
             __DIR__ . '/../view',
         ),
+		'base_path' => PATH_PUBLIC,
     ),
     // Placeholder for console routes
     'console' => array(
