@@ -1,9 +1,8 @@
 <?php
 namespace Blog\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-
-class IndexController extends AbstractActionController
+use Blog\Controller\MainController;
+class IndexController extends MainController{
 {
     public function indexAction()
     {

@@ -1,17 +1,37 @@
 <?php
 namespace Blog\Controller;
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 //phan trang voi doc trine
 use DoctrineORMModule\Paginator\Adapter\DoctrinePaginator as DoctrineAdapter;
 use Doctrine\ORM\Tools\Pagination\Paginator as ORMPaginator;
 use Zend\Paginator\Paginator;
-class PostController extends AbstractActionController{
-	public function __construct(){
+//mvcevent
+use Zend\Mvc\MvcEvent;
+use Blog\Controller\MainController;
+class PostController extends MainController{
+	public function onDispatch(MvcEvent $e){
+		$sm = $e->getApplication()->getServiceManager();
+		$authService = $sm->get('AuthService');
+		if($authService->hasIdentity()) {
+			@session_start();
+			//cau hinh session cho kcfinder la false thi moi co quyen truy cap vao de upload file
+			$_SESSION['KCFINDER']['disabled'] = false;
+		}else{
+			$route = $e->getRouteMatch();
+			$actionName = $route->getParam('action');
+			$roleArray = array('add', 'edit', 'del', 'list');
+			if(in_array($actionName, $roleArray)) {
+				$this->flashMessenger()->addMessage('Dang nhap de truy cap chuc nang nay');
+				$this->redirect()->toRoute('blog/auth', array('action'=>'login'));
+			}
+		}
+		return parent::onDispatch($e);
+	}
+	/*public function __construct(){
 		session_start();
 		//cau hinh session cho kcfinder la false thi moi co quyen truy cap vao de upload file
 		$_SESSION['KCFINDER']['disabled'] = false;
-	}
+	}*/
 	//return entitymanager
 	public function getEm(){
 		return $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');

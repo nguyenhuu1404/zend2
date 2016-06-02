@@ -5,6 +5,7 @@ return array(
         'invokables' => array(
             'Blog\Controller\Index' => 'Blog\Controller\IndexController',
 			'Blog\Controller\Post' => 'Blog\Controller\PostController',
+			'Blog\Controller\Auth' => 'Blog\Controller\AuthController',
         ),
     ),
     'router' => array(
@@ -60,6 +61,20 @@ return array(
 							),
                         ),
                     ),
+					'auth' => array(
+                        'type'    => 'Segment',
+                        'options' => array(
+                            'route'    => '/auth[/:action]',
+                            'constraints' => array(
+                                'action'     => '[a-zA-Z][a-zA-Z0-9_-]+',
+                            ),
+                            'defaults' => array(
+								'__NAMESPACE__' => 'Blog\Controller',
+								'controller'    => 'Auth',
+								'action'        => 'index',
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ),
@@ -70,7 +85,7 @@ return array(
         ),
 		//thiet lap layout
 		'template_map' => array(
-            'layout/layout' => __DIR__.'/../view/blog/layout/layout.phtml',
+            'layout/blog' => __DIR__.'/../view/blog/layout/layout.phtml',
         ),
     ),
 	'doctrine' => array(
@@ -85,6 +100,18 @@ return array(
                     __NAMESPACE__ . '\Entity' => __NAMESPACE__ . '_driver'
                 )
             )
-        )
+        ),
+		//khai bao zend authentication voi doctrine
+		'authentication' => array(
+            'orm_default' => array(
+                'object_manager' => 'Doctrine\ORM\EntityManager',
+                'identity_class' => 'Blog\Entity\User',//file user trog entity
+                'identity_property' => 'username',//verify theo username
+                'credential_property' => 'password',//verify theo password
+                'credential_callable' => function(\Blog\Entity\User $user, $passwordGiven) {
+                    return md5($passwordGiven) == $user->getPassword() && $user->getLevel() == 2; //nguoi dung nhap dung user name passwor va la admin
+                },
+            ),
+        ),       
     ),
 );

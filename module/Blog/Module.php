@@ -12,6 +12,8 @@ namespace Blog;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Zend\Authentication\AuthenticationService;
+
 
 class Module implements AutoloaderProviderInterface
 {
@@ -55,6 +57,10 @@ class Module implements AutoloaderProviderInterface
 				'CommentForm' => function($sm){
                     $form=new \Blog\Form\CommentForm('CommentForm');
                     return $form;
+                },
+				'AuthForm' => function($sm){
+                    $form=new \Blog\Form\VerifyForm('LoginForm');
+                    return $form;
                 }
             )
         );
@@ -77,9 +83,16 @@ class Module implements AutoloaderProviderInterface
 	//khai bao service
 	public function getServiceConfig(){
         return array(
+			'factories' => array(
+				//khai bao service doctrine zend authentication
+                'ZendAuth' => function($sm){
+                    return $sm->get('doctrine.authenticationservice.orm_default');
+                }
+            ),
             'invokables' => array(
                 'PostManager' => 'Blog\Service\PostManager',
-            ),
+            )
+			
         );
     }
 }
