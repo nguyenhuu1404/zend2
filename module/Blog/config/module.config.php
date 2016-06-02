@@ -85,7 +85,7 @@ return array(
         ),
 		//thiet lap layout
 		'template_map' => array(
-            'layout/blog' => __DIR__.'/../view/blog/layout/layout.phtml',
+            //'layout/blog' => __DIR__.'/../view/blog/layout/layout.phtml',
         ),
     ),
 	'doctrine' => array(

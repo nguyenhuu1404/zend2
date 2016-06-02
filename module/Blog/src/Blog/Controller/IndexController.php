@@ -3,7 +3,6 @@ namespace Blog\Controller;
 
 use Blog\Controller\MainController;
 class IndexController extends MainController{
-{
     public function indexAction()
     {
 		echo "<h1>Blog Module - Index Controller - Index Action</h1>";
